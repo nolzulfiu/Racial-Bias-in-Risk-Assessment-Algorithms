@@ -1,0 +1,433 @@
+Sub IDNum()
+    
+    Dim range As range
+    Application.ScreenUpdating = False
+    Set range = ActiveCell
+    
+    Do While Not IsEmpty(ActiveCell.Offset(0, 1).Value)
+        Set range = ActiveCell.Offset(-1)
+        ActiveCell.Value2 = range.Value + 1
+        ActiveCell.Offset(1).Select
+    Loop
+    
+    Application.ScreenUpdating = True
+End Sub
+
+
+First and Last name Together
+Sub MergeNames()
+    
+    Dim range As range
+    Application.ScreenUpdating = False
+    Set range = ActiveCell
+    
+    Do While Not IsEmpty(ActiveCell.Offset(1).Value)
+        Set range = ActiveCell.Offset(0, 1)
+        ActiveCell.Value2 = ActiveCell.Value2 + " " + range.Value
+        range.Value = ""
+        ActiveCell.Offset(1).Select
+    Loop
+    
+    Set range = ActiveCell.Offset(0, 1)
+    ActiveCell.Value2 = ActiveCell.Value2 + " " + range.Value
+    ActiveCell.Offset(1).Select
+    
+    Application.ScreenUpdating = True
+End Sub
+
+
+Find differences in two lists
+Sub DifLists()
+    
+    Dim range As range
+    Dim rg As range
+    Application.ScreenUpdating = False
+    Set range = Application.range("D3")
+    Set rg = Application.range("A3:A11285")
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+        
+        Set rg = Application.range("A3:A11285").Find(range.Value2, LookAt:=xlWhole)
+        
+        If rg Is Nothing Then
+            range.Interior.ColorIndex = 3
+            range.Offset(0, 1).Interior.ColorIndex = 3
+        Else
+            range.Interior.ColorIndex = 4
+            range.Offset(0, 1).Interior.ColorIndex = 4
+        End If
+        Set range = range.Offset(1)
+    Loop
+    
+    
+    Application.ScreenUpdating = True
+End Sub
+
+
+Sub Dates()
+    
+    Dim range As range
+    Dim d As Date
+    Dim row As Long
+    
+    Application.ScreenUpdating = False
+    Set range = Application.range("K2")
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+        d = DateAdd("m", 1, range.Offset(0, -1).Value2)
+        
+        If range.Value2 < range.Offset(0, -1).Value2 Or range.Value2 > d Then
+            range.EntireRow.Delete
+            Set range = Application.range("K" + CStr(row - 1))
+        End If
+        
+        Set range = range.Offset(1)
+        row = range.row
+    Loop
+    
+    If range.Value2 < range.Offset(0, -1).Value2 Or range.Value2 > d Then
+        range.EntireRow.Delete
+    End If
+    
+    Application.ScreenUpdating = True
+
+End Sub
+
+Sub Violent()
+    
+    Dim range, found, violent As range
+    Dim work As Worksheet
+    
+    Application.ScreenUpdating = False
+    Set range = Application.range("M2")
+    
+    Set work = Application.Worksheets("Violent")
+    Set violent = work.range("vio")
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+    
+        Set found = violent.Find(range.Value2, LookAt:=xlWhole)
+        
+        If Not found Is Nothing Then
+            range.Offset(0, 1).Value2 = "1"
+        Else
+            range.Offset(0, 1).Value2 = "0"
+        End If
+        
+        Set range = range.Offset(1)
+    Loop
+    
+    Set found = violent.Find(range.Value2, LookAt:=xlWhole)
+    
+    If Not found Is Nothing Then
+        range.Offset(0, 1).Value2 = "1"
+    Else
+        range.Offset(0, 1).Value2 = "0"
+    End If
+    
+    Application.ScreenUpdating = True
+    
+End Sub
+
+Sub ChargeDegree()
+    
+    Dim range As range
+    
+    Application.ScreenUpdating = False
+    Set range = Application.range("C2")
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+        
+        If InStr(1, range.Value2, "F") <> 0 Then
+            range.Value2 = "F"
+        Else
+            range.Value2 = "M"
+        End If
+        
+        Set range = range.Offset(1)
+    Loop
+    
+        If InStr(1, range.Value2, "F") <> 0 Then
+            range.Value2 = "F"
+        Else
+            range.Value2 = "M"
+        End If
+    
+    Application.ScreenUpdating = True
+
+End Sub
+
+Sub JailHistory()
+    
+    Dim range As range
+    Dim ID As Long
+    
+    Application.ScreenUpdating = False
+    Set range = Application.range("A2")
+    
+    ID = 1
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+        
+        If range.Value2 <> ID Then
+            range.Offset(0, 3).Value2 = range.Offset(0, 2).Value2
+            ID = range.Value2
+        End If
+        
+        Set range = range.Offset(1)
+    Loop
+    
+    If range.Value2 <> ID Then
+        range.Offset(0, 3).Value2 = range.Offset(0, 2).Value2
+    End If
+    
+    Application.ScreenUpdating = True
+
+End Sub
+
+Sub Priors()
+    
+    Dim range As range
+    Dim mcount, fcount, vcount, i As Long
+    
+    Application.ScreenUpdating = False
+    Set range = Application.range("A2")
+    
+    i = 1
+    
+    mcount = 0
+    fcount = 0
+    vcount = 0
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+        
+        For i = 1 To 100
+            
+            If range.Offset(i).Value2 <> range.Value2 Then
+                Exit For
+            End If
+            
+            If range.Offset(i, 3).Value2 < range.Offset(0, 3).Value2 Then
+                If range.Offset(i, 2).Value2 = "F" Then
+                    fcount = fcount + 1
+                Else
+                    mcount = mcount + 1
+                End If
+                
+                If range.Offset(i, 4).Value2 = 1 Then
+                    vcount = vcount + 1
+                End If
+            End If
+            
+        Next i
+        
+        range.Offset(0, 5).Value2 = mcount
+        range.Offset(0, 6).Value2 = fcount
+        range.Offset(0, 7).Value2 = vcount
+        
+        mcount = 0
+        fcount = 0
+        vcount = 0
+        
+        Set range = range.Offset(1)
+        
+        i = 1
+        
+    Loop
+    
+    mcount = 0
+    fcount = 0
+    vcount = 0
+    
+    For i = 1 To 100
+        
+        If range.Offset(i).Value2 <> range.Value2 Then
+            Exit For
+        End If
+        
+        If range.Offset(i, 3).Value2 < range.Offset(0, 3).Value2 Then
+            If range.Offset(i, 2).Value2 = "F" Then
+                fcount = fcount + 1
+            Else
+                mcount = mcount + 1
+            End If
+            
+            If range.Offset(i, 4).Value2 = 1 Then
+                vcount = vcount + 1
+            End If
+        End If
+        
+    Next i
+    
+    range.Offset(0, 5).Value2 = mcount
+    range.Offset(0, 6).Value2 = fcount
+    range.Offset(0, 7).Value2 = vcount
+    
+    Application.ScreenUpdating = True
+    
+End Sub
+
+Sub Scores()
+    
+    Dim range As range
+    Dim score As Long
+    Dim scoretext As String
+    
+    Set range = Application.range("E2")
+    
+    score = 0
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+    
+        If range.Value2 = 1 Then
+            score = score + 2
+        End If
+        
+        If range.Offset(0, 1).Value2 = 1 Then
+            score = score + 4
+        End If
+        
+        If range.Offset(0, 2).Value2 = 1 Then
+            score = score + 2
+        End If
+        
+        If range.Offset(0, 3).Value2 = 1 Then
+            score = score + 1
+        End If
+        
+        If range.Offset(0, 4).Value2 = 1 Then
+            score = score + 2
+        End If
+        
+        If range.Offset(0, 5).Value2 = 1 Then
+            score = score + 2
+        End If
+        
+        If range.Offset(0, 6).Value2 = 1 Then
+            score = score + 1
+        End If
+        
+        If range.Offset(0, 7).Value2 = 1 Then
+            score = score + 2
+        End If
+        
+        If range.Offset(0, 8).Value2 = 1 Then
+            score = score + 1
+        End If
+        
+        If range.Offset(0, 9).Value2 = 1 Then
+            score = score + 1
+        End If
+        
+        If range.Offset(0, 10).Value2 = 0 Then
+            score = score + 1
+        End If
+        
+        If range.Offset(0, 11).Value2 = 1 Then
+            score = score + 10
+        End If
+        
+        If range.Offset(0, 10).Value2 = 1 Then
+            score = score - 1
+        End If
+        
+        If score < 5 Then
+            scoretext = "Low"
+        ElseIf score < 10 Then
+            scoretext = "Medium"
+        Else
+            scoretext = "High"
+        End If
+        
+        range.Offset(0, -2).Value2 = scoretext
+        
+        Set range = range.Offset(1)
+        
+        scoretext = ""
+        score = 0
+    Loop
+    
+End Sub
+
+Sub recidivism()
+    
+    Dim range, found, id As range
+    Dim work As Worksheet
+    
+    Application.ScreenUpdating = False
+    Set range = Application.range("A2")
+    
+    Set id = Application.range("ID")
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+    
+        Set found = id.Find(range.Value2, LookAt:=xlWhole)
+        
+        If Not found Is Nothing Then
+            If range.Offset(0, 1).Value2 < found.Offset(0, 1).Value2 Then
+                range.Offset(0, 2).Value2 = "1"
+            Else
+                range.Offset(0, 2).Value2 = "0"
+            End If
+        Else
+            range.Offset(0, 2).Value2 = "0"
+        End If
+        
+        Set range = range.Offset(1)
+    Loop
+    
+    Set found = id.Find(range.Value2, LookAt:=xlWhole)
+        
+    If Not found Is Nothing Then
+        If range.Offset(0, 1).Value2 < found.Offset(0, 1).Value2 Then
+            range.Offset(0, 2).Value2 = "1"
+        Else
+            range.Offset(0, 2).Value2 = "0"
+        End If
+    Else
+        range.Offset(0, 2).Value2 = "0"
+    End If
+    
+    Application.ScreenUpdating = True
+    
+End Sub
+
+Sub AgeGroups()
+    
+    Dim range As range
+    
+    Application.ScreenUpdating = False
+    
+    Set range = Application.range("E2")
+    
+    Do While Not IsEmpty(range.Offset(1).Value)
+        
+        If range.Value2 < 23 Then
+            range.Offset(0, 1).Value2 = "Under 23"
+        ElseIf range.Value2 > 22 And range.Value2 < 40 Then
+            range.Offset(0, 1).Value2 = "23 to 39"
+        ElseIf range.Value2 > 39 And range.Value2 < 60 Then
+            range.Offset(0, 1).Value2 = "40 to 60"
+        ElseIf range.Value2 > 60 Then
+            range.Offset(0, 1).Value2 = "60+"
+        End If
+        
+        
+        Set range = range.Offset(1)
+    Loop
+    
+        If range.Value2 < 23 Then
+            range.Offset(0, 1).Value2 = "Under 23"
+        ElseIf range.Value2 > 22 And range.Value2 < 40 Then
+            range.Offset(0, 1).Value2 = "23 to 39"
+        ElseIf range.Value2 > 39 And range.Value2 < 60 Then
+            range.Offset(0, 1).Value2 = "40 to 60"
+        ElseIf range.Value2 > 60 Then
+            range.Offset(0, 1).Value2 = "60+"
+        End If
+    
+    Application.ScreenUpdating = True
+    
+End Sub
+
+
